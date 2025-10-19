@@ -12,17 +12,25 @@ process.on('unhandledRejection', (reason: unknown, promise: Promise<any>) => {
   process.exit(1);
 });
 
-// Create and start the application
-const app = new App();
-app.listen();
+// Create application instance
+const appInstance = new App();
+const app = appInstance.getApp();
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('👋 SIGTERM received, shutting down gracefully');
-  process.exit(0);
-});
+// Export for Vercel serverless
+export default app;
 
-process.on('SIGINT', () => {
-  console.log('👋 SIGINT received, shutting down gracefully');
-  process.exit(0);
-});
+// Start server for local development or non-serverless environments
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  appInstance.listen();
+  
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('👋 SIGTERM received, shutting down gracefully');
+    process.exit(0);
+  });
+
+  process.on('SIGINT', () => {
+    console.log('👋 SIGINT received, shutting down gracefully');
+    process.exit(0);
+  });
+}

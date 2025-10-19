@@ -27,11 +27,9 @@ class App {
     // Security middleware
     this.app.use(helmet());
     
-    // CORS middleware
+    // CORS middleware - allow all origins for Vercel deployment
     this.app.use(cors({
-      origin: process.env.NODE_ENV === 'production' 
-        ? ['https://your-frontend-domain.com'] 
-        : ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000'],
+      origin: '*',
       credentials: true
     }));
 
@@ -121,6 +119,10 @@ class App {
 
   private async connectToDatabase(): Promise<void> {
     await connectDB();
+  }
+
+  public getApp(): Application {
+    return this.app;
   }
 
   public listen(): void {
