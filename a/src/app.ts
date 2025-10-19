@@ -42,6 +42,48 @@ class App {
   }
 
   private initializeRoutes(): void {
+    // Root route - Welcome page with health check
+    this.app.get('/', async (req: Request, res: Response) => {
+      try {
+        const dbStatus = await this.checkDatabaseConnection();
+        
+        res.status(200).json({
+          success: true,
+          message: '🚀 JWT Authentication API',
+          description: 'API de autenticação com JWT, Node.js, TypeScript e MongoDB',
+          timestamp: new Date().toISOString(),
+          environment: process.env.NODE_ENV || 'development',
+          database: dbStatus,
+          endpoints: {
+            health: '/health',
+            register: 'POST /register',
+            login: 'POST /login',
+            protected: 'GET /protected (requires token)'
+          },
+          documentation: 'https://github.com/bluemetti/b'
+        });
+      } catch (error) {
+        res.status(503).json({
+          success: false,
+          message: '🚀 JWT Authentication API',
+          description: 'API de autenticação com JWT, Node.js, TypeScript e MongoDB',
+          timestamp: new Date().toISOString(),
+          environment: process.env.NODE_ENV || 'development',
+          database: {
+            status: 'disconnected',
+            error: 'Database connection failed'
+          },
+          endpoints: {
+            health: '/health',
+            register: 'POST /register',
+            login: 'POST /login',
+            protected: 'GET /protected (requires token)'
+          },
+          documentation: 'https://github.com/bluemetti/b'
+        });
+      }
+    });
+
     // Health check route
     this.app.get('/health', async (req: Request, res: Response) => {
       try {
