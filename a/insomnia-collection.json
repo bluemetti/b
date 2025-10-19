@@ -18,7 +18,7 @@
       "data": {
         "base_url_local": "https://organic-space-meme-7v9xrv7jjvp9cxpj9-3001.app.github.dev",
         "base_url_atlas": "https://organic-space-meme-7v9xrv7jjvp9cxpj9-3002.app.github.dev",
-        "base_url_production": "https://b-yeqy.vercel.app",
+        "base_url_production": "https://backend.daviblumetti.tech",
         "mongo_express_url": "https://organic-space-meme-7v9xrv7jjvp9cxpj9-8081.app.github.dev"
       },
       "parentId": "wrk_jwt_auth"
