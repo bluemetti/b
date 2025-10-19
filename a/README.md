@@ -1,3 +1,8 @@
+Vídeo: https://backend.daviblumetti.tech/
+
+
+
+
 # 🔐 JWT Authentication Backend
 
 Backend completo de autenticação com Node.js, TypeScript, Express, MongoDB e JWT.
