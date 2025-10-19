@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # Node.js Application - CONEXÃO ATLAS (sem MongoDB local)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jwt-auth-app-atlas
+    restart: unless-stopped
+    ports:
+      - "3002:3001"  # Porta diferente para não conflitar
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      MONGODB_URI_PRODUCTION: ${MONGODB_URI_PRODUCTION}
+      JWT_SECRET: ${JWT_SECRET:-e64c60b2ce4429ceb041a6f19058f726f55f0eb56b452fcba2ac4e32957fa5c9}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-24h}
+      BCRYPT_SALT_ROUNDS: ${BCRYPT_SALT_ROUNDS:-12}
+    networks:
+      - jwt-auth-network
+    volumes:
+      - logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  jwt-auth-network:
+    name: jwt-auth-network-atlas
+    driver: bridge
+
+volumes:
+  logs:
+    driver: local

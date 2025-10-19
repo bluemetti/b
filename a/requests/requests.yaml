@@ -1,0 +1,244 @@
+_type: export
+__export_format: 4
+__export_date: 2025-10-17T00:00:00.000Z
+__export_source: insomnia.desktop.app:v2023.5.8
+resources:
+  - _id: req_register_success
+    parentId: fld_auth
+    type: Request
+    name: 01 - Cadastro bem-sucedido
+    url: "{{ _.base_url }}/register"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "João Silva",
+          "email": "joao.silva@email.com",
+          "password": "Senha@123"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    parameters: []
+    authentication: {}
+
+  - _id: req_register_duplicate
+    parentId: fld_auth
+    type: Request
+    name: 02 - Cadastro com email repetido
+    url: "{{ _.base_url }}/register"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Maria Santos",
+          "email": "joao.silva@email.com",
+          "password": "Senha@456"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    parameters: []
+    authentication: {}
+
+  - _id: req_register_invalid_password
+    parentId: fld_auth
+    type: Request
+    name: 03 - Cadastro com senha inválida (muito curta)
+    url: "{{ _.base_url }}/register"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Pedro Costa",
+          "email": "pedro.costa@email.com",
+          "password": "123"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    parameters: []
+    authentication: {}
+
+  - _id: req_register_invalid_email
+    parentId: fld_auth
+    type: Request
+    name: 04 - Cadastro com email inválido
+    url: "{{ _.base_url }}/register"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Ana Oliveira",
+          "email": "email-invalido",
+          "password": "Senha@789"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    parameters: []
+    authentication: {}
+
+  - _id: req_register_malformed
+    parentId: fld_auth
+    type: Request
+    name: 05 - Cadastro com JSON malformado
+    url: "{{ _.base_url }}/register"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Carlos Souza",
+          "email": "carlos.souza@email.com"
+          "password": "Senha@321"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    parameters: []
+    authentication: {}
+
+  - _id: req_login_success
+    parentId: fld_auth
+    type: Request
+    name: 06 - Login bem-sucedido
+    url: "{{ _.base_url }}/login"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "email": "joao.silva@email.com",
+          "password": "Senha@123"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    parameters: []
+    authentication: {}
+
+  - _id: req_login_invalid_password
+    parentId: fld_auth
+    type: Request
+    name: 07 - Login com senha inválida
+    url: "{{ _.base_url }}/login"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "email": "joao.silva@email.com",
+          "password": "SenhaErrada@123"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    parameters: []
+    authentication: {}
+
+  - _id: req_login_invalid_email
+    parentId: fld_auth
+    type: Request
+    name: 08 - Login com email inválido (formato)
+    url: "{{ _.base_url }}/login"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "email": "email-sem-arroba",
+          "password": "Senha@123"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    parameters: []
+    authentication: {}
+
+  - _id: req_login_malformed
+    parentId: fld_auth
+    type: Request
+    name: 09 - Login com JSON malformado
+    url: "{{ _.base_url }}/login"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "email": "joao.silva@email.com"
+          "password": "Senha@123"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    parameters: []
+    authentication: {}
+
+  - _id: req_protected_valid_token
+    parentId: fld_auth
+    type: Request
+    name: 10 - Acesso protegido com token válido
+    url: "{{ _.base_url }}/protected"
+    method: GET
+    body: {}
+    headers:
+      - name: Authorization
+        value: "Bearer {{ _.token }}"
+    parameters: []
+    authentication: {}
+
+  - _id: req_protected_no_token
+    parentId: fld_auth
+    type: Request
+    name: 11 - Acesso protegido sem token
+    url: "{{ _.base_url }}/protected"
+    method: GET
+    body: {}
+    headers: []
+    parameters: []
+    authentication: {}
+
+  - _id: req_protected_invalid_token
+    parentId: fld_auth
+    type: Request
+    name: 12 - Acesso protegido com token inválido
+    url: "{{ _.base_url }}/protected"
+    method: GET
+    body: {}
+    headers:
+      - name: Authorization
+        value: "Bearer token_invalido_xyz123"
+    parameters: []
+    authentication: {}
+
+  - _id: fld_auth
+    parentId: wrk_main
+    type: RequestGroup
+    name: Autenticação JWT
+    description: Requisições de teste para o sistema de autenticação
+
+  - _id: wrk_main
+    type: Workspace
+    name: JWT Auth Backend
+    description: API de autenticação com JWT
+
+  - _id: env_base
+    parentId: wrk_main
+    type: Environment
+    name: Base Environment
+    data:
+      base_url: http://localhost:3001
+      token: ""
+
+  - _id: env_production
+    parentId: wrk_main
+    type: Environment
+    name: Production
+    data:
+      base_url: https://seu-dominio-production.com
+      token: ""

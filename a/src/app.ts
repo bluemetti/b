@@ -45,13 +45,29 @@ class App {
 
   private initializeRoutes(): void {
     // Health check route
-    this.app.get('/health', (req: Request, res: Response) => {
-      res.status(200).json({
-        success: true,
-        message: 'Server is running!',
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development'
-      });
+    this.app.get('/health', async (req: Request, res: Response) => {
+      try {
+        const dbStatus = await this.checkDatabaseConnection();
+        
+        res.status(200).json({
+          success: true,
+          message: 'Server is running!',
+          timestamp: new Date().toISOString(),
+          environment: process.env.NODE_ENV || 'development',
+          database: dbStatus
+        });
+      } catch (error) {
+        res.status(503).json({
+          success: false,
+          message: 'Service unavailable',
+          timestamp: new Date().toISOString(),
+          environment: process.env.NODE_ENV || 'development',
+          database: {
+            status: 'disconnected',
+            error: 'Database connection failed'
+          }
+        });
+      }
     });
 
     // API routes
@@ -65,6 +81,19 @@ class App {
         error: 'NOT_FOUND'
       });
     });
+  }
+
+  private async checkDatabaseConnection(): Promise<{ status: string; name?: string }> {
+    const mongoose = (await import('mongoose')).default;
+    
+    if (mongoose.connection.readyState === 1) {
+      return {
+        status: 'connected',
+        name: mongoose.connection.name
+      };
+    }
+    
+    return { status: 'disconnected' };
   }
 
   private initializeErrorHandling(): void {

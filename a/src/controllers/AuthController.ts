@@ -4,14 +4,14 @@ import { IUser } from '../models/User';
 
 export class AuthController {
   static async register(req: Request, res: Response): Promise<void> {
+    const { name, email, password } = req.body;
+    
     try {
-      const { name, email, password } = req.body;
-
       console.log(`🔄 Registration attempt for: ${email}`);
 
       const { user, token } = await AuthService.register({
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
+        name: name?.trim(),
+        email: email?.trim().toLowerCase(),
         password
       });
 
@@ -34,7 +34,8 @@ export class AuthController {
 
       // Handle duplicate email error
       if (error.code === 11000 || error.message.includes('already exists')) {
-        res.status(409).json({
+        console.log(`⚠️ Duplicate email attempt: ${email}`);
+        res.status(422).json({
           success: false,
           message: 'User with this email already exists',
           error: 'DUPLICATE_EMAIL'
@@ -49,7 +50,8 @@ export class AuthController {
           message: err.message
         }));
 
-        res.status(400).json({
+        console.log(`⚠️ Validation error during registration: ${validationErrors.length} error(s)`);
+        res.status(422).json({
           success: false,
           message: 'Validation failed',
           errors: validationErrors,
@@ -67,13 +69,13 @@ export class AuthController {
   }
 
   static async login(req: Request, res: Response): Promise<void> {
+    const { email, password } = req.body;
+    
     try {
-      const { email, password } = req.body;
-
       console.log(`🔄 Login attempt for: ${email}`);
 
       const { user, token } = await AuthService.login({
-        email: email.trim().toLowerCase(),
+        email: email?.trim().toLowerCase(),
         password
       });
 
@@ -94,7 +96,29 @@ export class AuthController {
     } catch (error: any) {
       console.error('❌ Login controller error:', error);
 
-      // Handle invalid credentials
+      // Handle user not found
+      if (error.message.includes('User not found')) {
+        console.log(`⚠️ Login attempt with non-existent email: ${email}`);
+        res.status(404).json({
+          success: false,
+          message: 'User not found',
+          error: 'USER_NOT_FOUND'
+        });
+        return;
+      }
+
+      // Handle invalid password
+      if (error.message.includes('Invalid password')) {
+        console.log(`⚠️ Login attempt with invalid password for: ${email}`);
+        res.status(401).json({
+          success: false,
+          message: 'Invalid password',
+          error: 'INVALID_PASSWORD'
+        });
+        return;
+      }
+
+      // Handle invalid credentials (generic)
       if (error.message.includes('Invalid email or password')) {
         res.status(401).json({
           success: false,

@@ -9,7 +9,14 @@
     "dev": "nodemon src/index.ts",
     "watch": "tsc -w",
     "clean": "rimraf dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:build": "docker build -t jwt-auth-backend .",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f app",
+    "docker:restart": "docker-compose restart app",
+    "docker:clean": "docker-compose down -v",
+    "docker:dev": "docker-compose up"
   },
   "keywords": [
     "nodejs",

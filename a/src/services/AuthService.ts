@@ -79,13 +79,15 @@ export class AuthService {
       const user = await User.findOne({ email: loginData.email }).select('+password');
       
       if (!user) {
-        throw new Error('Invalid email or password');
+        console.log(`⚠️ Login failed: User not found - ${loginData.email}`);
+        throw new Error('User not found');
       }
 
       // Compare password
       const isPasswordValid = await user.comparePassword(loginData.password);
       if (!isPasswordValid) {
-        throw new Error('Invalid email or password');
+        console.log(`⚠️ Login failed: Invalid password for - ${loginData.email}`);
+        throw new Error('Invalid password');
       }
 
       // Generate JWT token

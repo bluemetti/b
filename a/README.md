@@ -1,284 +1,463 @@
-# JWT Authentication Backend
+# 🔐 JWT Authentication Backend
 
-## 📋 Descrição
+Backend completo de autenticação com Node.js, TypeScript, Express, MongoDB e JWT.
 
-API Backend desenvolvida com Node.js, TypeScript, Express e MongoDB para autenticação de usuários utilizando JWT (JSON Web Tokens). O projeto segue uma arquitetura em camadas bem estruturada e implementa todas as funcionalidades obrigatórias solicitadas.
+## 📋 Índice
 
-## 🏗️ Arquitetura
+- [Funcionalidades](#-funcionalidades)
+- [Tecnologias](#-tecnologias)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Instalação e Configuração](#-instalação-e-configuração)
+- [Uso com Docker](#-uso-com-docker)
+- [Uso sem Docker](#-uso-sem-docker)
+- [Endpoints da API](#-endpoints-da-api)
+- [Variáveis de Ambiente](#-variáveis-de-ambiente)
+- [Testes](#-testes)
+- [Deploy](#-deploy)
 
-O projeto está organizado seguindo a arquitetura de camadas:
-
-```
-src/
-├── controllers/     # Controladores da aplicação
-├── services/        # Lógica de negócio
-├── models/          # Modelos do banco de dados (Mongoose)
-├── routes/          # Definição das rotas
-├── middlewares/     # Middlewares customizados
-├── database/        # Configuração do banco de dados
-└── index.ts         # Ponto de entrada da aplicação
-```
-
-## 🚀 Funcionalidades
+## ✨ Funcionalidades
 
 ### Rotas Públicas
-
-- **POST /register**: Cria um novo usuário no sistema
-- **POST /login**: Autentica um usuário e gera um token JWT
+- ✅ **POST /register** - Registro de novos usuários
+- ✅ **POST /login** - Autenticação e geração de token JWT
 
 ### Rotas Protegidas
+- 🔒 **GET /protected** - Rota de exemplo protegida por JWT
 
-- **GET /protected**: Rota que responde "Acesso autorizado", acessível apenas com token JWT válido
+### Outras Rotas
+- 🏥 **GET /health** - Health check com status do MongoDB
 
-### Recursos Implementados
+## 🚀 Tecnologias
 
-- ✅ Model de User com validações completas
-- ✅ Senha salva como hash (bcrypt)
-- ✅ Tratamento de erros adequado
-- ✅ Variáveis de ambiente para configurações sensíveis
-- ✅ Conexão com MongoDB (local e produção)
-- ✅ Logs apropriados para todas as operações
-- ✅ Validação de dados de entrada
-- ✅ Middlewares de autenticação e validação
+- **Node.js** 20+
+- **TypeScript** 5.9+
+- **Express** 5.1+
+- **MongoDB** 7.0+
+- **Mongoose** 8.19+
+- **JWT** (jsonwebtoken)
+- **Bcrypt** para hash de senhas
+- **Docker** & **Docker Compose**
 
-## 🛠️ Tecnologias Utilizadas
+## 📁 Estrutura do Projeto
 
-- **Node.js** - Runtime JavaScript
-- **TypeScript** - Superset do JavaScript com tipagem
-- **Express** - Framework web
-- **MongoDB** - Banco de dados NoSQL
-- **Mongoose** - ODM para MongoDB
-- **bcrypt** - Hash de senhas
-- **jsonwebtoken** - Geração e verificação de JWT
-- **cors** - Política de CORS
-- **helmet** - Segurança HTTP
-- **morgan** - Logger de requisições HTTP
-- **dotenv** - Gerenciamento de variáveis de ambiente
+```
+a/
+├── src/
+│   ├── controllers/      # Controladores (lógica de requisição/resposta)
+│   │   └── AuthController.ts
+│   ├── services/         # Serviços (lógica de negócio)
+│   │   └── AuthService.ts
+│   ├── models/           # Modelos do MongoDB
+│   │   └── User.ts
+│   ├── middlewares/      # Middlewares (autenticação, validação)
+│   │   ├── authMiddleware.ts
+│   │   └── validationMiddleware.ts
+│   ├── routes/           # Definição de rotas
+│   │   └── authRoutes.ts
+│   ├── database/         # Configuração do banco de dados
+│   │   └── connection.ts
+│   ├── app.ts           # Configuração do Express
+│   └── index.ts         # Entry point da aplicação
+├── requests/            # Requisições de teste (Insomnia/Postman)
+│   ├── requests.yaml    # Coleção completa
+│   └── *.sh            # Scripts individuais
+├── Dockerfile           # Dockerfile para produção
+├── docker-compose.yml   # Orquestração de containers
+├── .dockerignore        # Arquivos ignorados no build
+├── package.json
+├── tsconfig.json
+└── .env.example         # Exemplo de variáveis de ambiente
+```
 
-## 📦 Instalação e Configuração
+## 🔧 Instalação e Configuração
 
 ### Pré-requisitos
 
-- Node.js (v16 ou superior)
-- MongoDB (local ou MongoDB Atlas)
+#### Opção 1: Com Docker (Recomendado)
+- Docker 20+
+- Docker Compose 2+
+
+#### Opção 2: Sem Docker
+- Node.js 20+
+- MongoDB 7+
 - npm ou yarn
 
-### Passos para instalação
+### Configuração Inicial
 
 1. **Clone o repositório**
 ```bash
-git clone <url-do-repositorio>
-cd jwt-auth-backend
+cd a
 ```
 
-2. **Instale as dependências**
-```bash
-npm install
-```
-
-3. **Configure as variáveis de ambiente**
+2. **Crie o arquivo `.env`**
 ```bash
 cp .env.example .env
 ```
 
-Edite o arquivo `.env` com suas configurações:
+3. **Edite o arquivo `.env` com suas configurações**
+```bash
+nano .env  # ou use seu editor preferido
+```
+
+## 🐳 Uso com Docker
+
+### Iniciar todos os serviços
+
+```bash
+# Modo desenvolvimento (com logs visíveis)
+npm run docker:dev
+
+# Ou em modo detached (segundo plano)
+npm run docker:up
+```
+
+Isso iniciará:
+- **App Node.js** → http://localhost:3001
+- **MongoDB** → mongodb://localhost:27017
+- **Mongo Express** (UI Web) → http://localhost:8081
+  - Usuário: `admin`
+  - Senha: `admin123`
+
+### Outros comandos Docker
+
+```bash
+# Ver logs da aplicação
+npm run docker:logs
+
+# Parar todos os serviços
+npm run docker:down
+
+# Reiniciar apenas a aplicação
+npm run docker:restart
+
+# Parar e remover volumes (limpa banco de dados)
+npm run docker:clean
+
+# Construir apenas a imagem
+npm run docker:build
+```
+
+### Acessar o container
+
+```bash
+docker exec -it jwt-auth-app sh
+```
+
+## 💻 Uso sem Docker
+
+### 1. Instalar dependências
+
+```bash
+npm install
+```
+
+### 2. Configurar MongoDB
+
+Certifique-se de que o MongoDB está rodando localmente:
+
+```bash
+# Verificar se MongoDB está rodando
+sudo systemctl status mongod
+
+# Iniciar MongoDB
+sudo systemctl start mongod
+```
+
+### 3. Configurar `.env`
+
 ```env
 NODE_ENV=development
 PORT=3001
 MONGODB_URI=mongodb://localhost:27017/jwt-auth-db
-JWT_SECRET=seu-jwt-secret-super-seguro
+JWT_SECRET=seu-segredo-super-secreto-aqui
 JWT_EXPIRES_IN=24h
 BCRYPT_SALT_ROUNDS=12
 ```
 
-4. **Compile o TypeScript**
-```bash
-npm run build
-```
+### 4. Executar em desenvolvimento
 
-5. **Execute a aplicação**
-
-**Desenvolvimento (com hot reload):**
 ```bash
+# Com hot-reload
 npm run dev
-```
 
-**Produção:**
-```bash
+# Ou compilar e executar
+npm run build
 npm start
 ```
 
-## 🧪 Testando a API
+## 📡 Endpoints da API
 
-### Usando os scripts fornecidos
+### Health Check
 
-Na pasta `requests/` há scripts bash para testar todos os cenários:
-
-1. **Dê permissão de execução aos scripts:**
-```bash
-chmod +x requests/*.sh
+```http
+GET /health
 ```
 
-2. **Execute todos os testes:**
-```bash
-cd requests
-./run-all-tests.sh
-```
-
-3. **Ou execute testes individuais:**
-```bash
-./01-register-success.sh
-./06-login-success.sh
-./10-protected-with-valid-token.sh
-```
-
-### Exemplos de uso manual
-
-#### 1. Registrar um usuário
-```bash
-curl -X POST http://localhost:3001/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "João Silva",
-    "email": "joao@email.com",
-    "password": "senha123"
-  }'
-```
-
-#### 2. Fazer login
-```bash
-curl -X POST http://localhost:3001/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "joao@email.com",
-    "password": "senha123"
-  }'
-```
-
-#### 3. Acessar rota protegida
-```bash
-curl -X GET http://localhost:3001/protected \
-  -H "Authorization: Bearer SEU_TOKEN_AQUI"
-```
-
-## 📊 Estrutura de Resposta da API
-
-### Sucesso
+**Resposta de Sucesso (200)**
 ```json
 {
   "success": true,
-  "message": "Operação realizada com sucesso",
-  "data": {
-    // dados da resposta
+  "message": "Server is running!",
+  "timestamp": "2025-10-19T10:30:00.000Z",
+  "environment": "development",
+  "database": {
+    "status": "connected",
+    "name": "jwt-auth-db"
   }
 }
 ```
 
-### Erro
-```json
+### Registro de Usuário
+
+```http
+POST /register
+Content-Type: application/json
+
 {
-  "success": false,
-  "message": "Descrição do erro",
-  "error": "CODIGO_DO_ERRO",
-  "errors": [
-    // array de erros detalhados (quando aplicável)
-  ]
+  "name": "João Silva",
+  "email": "joao.silva@email.com",
+  "password": "Senha@123"
 }
 ```
 
-## 🔒 Segurança
+**Validações:**
+- `name`: mínimo 2 caracteres, máximo 50
+- `email`: formato válido de email
+- `password`: mínimo 8 caracteres, deve conter:
+  - 1 letra maiúscula
+  - 1 letra minúscula
+  - 1 número
+  - 1 caractere especial (@$!%*?&#)
 
-- Senhas são hasheadas com bcrypt (salt rounds: 12)
-- Tokens JWT com expiração configurável
-- Validação rigorosa de dados de entrada
-- Headers de segurança com Helmet
-- Política CORS configurada
-- Tratamento seguro de erros (sem exposição de dados sensíveis)
+**Resposta de Sucesso (201)**
+```json
+{
+  "success": true,
+  "message": "User registered successfully",
+  "data": {
+    "user": {
+      "id": "67...",
+      "name": "João Silva",
+      "email": "joao.silva@email.com",
+      "createdAt": "2025-10-19T10:30:00.000Z"
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
 
-## 🌍 Variáveis de Ambiente
-
-| Variável | Descrição | Padrão |
-|----------|-----------|---------|
-| `NODE_ENV` | Ambiente de execução | `development` |
-| `PORT` | Porta do servidor | `3000` |
-| `MONGODB_URI` | URI do MongoDB (desenvolvimento) | - |
-| `MONGODB_URI_PRODUCTION` | URI do MongoDB (produção) | - |
-| `JWT_SECRET` | Chave secreta para JWT | - |
-| `JWT_EXPIRES_IN` | Tempo de expiração do JWT | `24h` |
-| `BCRYPT_SALT_ROUNDS` | Rounds de salt do bcrypt | `12` |
-
-## 🚀 Deploy
-
-### MongoDB Atlas (Produção)
-
-1. Crie uma conta no [MongoDB Atlas](https://www.mongodb.com/atlas)
-2. Crie um cluster gratuito
-3. Configure as credenciais de acesso
-4. Atualize a variável `MONGODB_URI_PRODUCTION` no arquivo `.env`
-
-### Heroku / Vercel / Railway
-
-1. Configure as variáveis de ambiente na plataforma escolhida
-2. Certifique-se de que `NODE_ENV=production`
-3. Configure a `MONGODB_URI_PRODUCTION` com a string de conexão do Atlas
-
-## 📝 Scripts Disponíveis
-
-| Script | Descrição |
-|--------|-----------|
-| `npm run dev` | Executa em modo desenvolvimento com hot reload |
-| `npm run build` | Compila o TypeScript para JavaScript |
-| `npm start` | Executa a versão compilada |
-| `npm run watch` | Compila TypeScript em modo watch |
-| `npm run clean` | Remove a pasta dist |
-
-## 🔍 Logs
-
-A aplicação gera logs detalhados para:
-- ✅ Conexão com banco de dados
-- 🔄 Tentativas de registro e login
-- 🔐 Verificações de token
-- ❌ Erros e exceções
-- 📊 Requisições HTTP (Morgan)
-
-## 📋 Cenários de Teste Implementados
-
-### Registro
-- ✅ Registro bem-sucedido
-- ❌ Email já existente
-- ❌ Senha inválida (muito curta)
-- ❌ Email inválido
-- ❌ JSON mal formatado
+**Erros Possíveis:**
+- `422` - Validação falhou
+- `422` - Email já cadastrado
 
 ### Login
-- ✅ Login bem-sucedido
-- ❌ Senha incorreta
-- ❌ Email inválido/inexistente
-- ❌ JSON mal formatado
+
+```http
+POST /login
+Content-Type: application/json
+
+{
+  "email": "joao.silva@email.com",
+  "password": "Senha@123"
+}
+```
+
+**Resposta de Sucesso (200)**
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "user": {
+      "id": "67...",
+      "name": "João Silva",
+      "email": "joao.silva@email.com",
+      "createdAt": "2025-10-19T10:30:00.000Z"
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+**Erros Possíveis:**
+- `404` - Usuário não encontrado
+- `401` - Senha inválida
+- `422` - Dados inválidos
 
 ### Rota Protegida
-- ✅ Acesso com token válido
-- ❌ Acesso sem token
-- ❌ Acesso com token inválido
 
-## 🤝 Contribuição
+```http
+GET /protected
+Authorization: Bearer <seu-token-jwt>
+```
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+**Resposta de Sucesso (200)**
+```json
+{
+  "success": true,
+  "message": "Acesso autorizado",
+  "data": {
+    "message": "Você acessou uma rota protegida com sucesso!",
+    "user": {
+      "userId": "67...",
+      "email": "joao.silva@email.com"
+    },
+    "timestamp": "2025-10-19T10:30:00.000Z"
+  }
+}
+```
+
+**Erros Possíveis:**
+- `401` - Token não fornecido
+- `401` - Token inválido ou expirado
+
+## 🔐 Variáveis de Ambiente
+
+| Variável | Descrição | Exemplo | Obrigatória |
+|----------|-----------|---------|-------------|
+| `NODE_ENV` | Ambiente de execução | `development` ou `production` | Não |
+| `PORT` | Porta do servidor | `3001` | Não (padrão: 3000) |
+| `MONGODB_URI` | URL do MongoDB (dev/local) | `mongodb://localhost:27017/jwt-auth-db` | Sim |
+| `MONGODB_URI_PRODUCTION` | URL do MongoDB (produção) | `mongodb+srv://user:pass@cluster.mongodb.net/db` | Sim (prod) |
+| `JWT_SECRET` | Chave secreta do JWT | `seu-super-segredo-aqui` | Sim |
+| `JWT_EXPIRES_IN` | Tempo de expiração do token | `24h`, `7d`, `30m` | Não (padrão: 24h) |
+| `BCRYPT_SALT_ROUNDS` | Rounds do bcrypt | `12` | Não (padrão: 12) |
+
+## 🧪 Testes
+
+### Importar Coleção no Insomnia
+
+1. Abra o Insomnia
+2. Vá em **Application** → **Preferences** → **Data** → **Import Data**
+3. Selecione o arquivo `requests/requests.yaml`
+4. Crie um ambiente com a variável `base_url`:
+   ```json
+   {
+     "base_url": "http://localhost:3001"
+   }
+   ```
+
+### Executar Testes via Scripts
+
+```bash
+cd requests
+
+# Executar todos os testes
+./run-all-tests.sh
+
+# Executar teste individual
+./01-register-success.sh
+./06-login-success.sh
+```
+
+### Cenários de Teste Incluídos
+
+1. ✅ Cadastro bem-sucedido
+2. ❌ Cadastro com email repetido
+3. ❌ Cadastro com senha inválida
+4. ❌ Cadastro com email inválido
+5. ❌ Cadastro com JSON mal formatado
+6. ✅ Login bem-sucedido
+7. ❌ Login com senha inválida
+8. ❌ Login com email inválido
+9. ❌ Login com JSON mal formatado
+10. ✅ Acesso a /protected com token válido
+11. ❌ Acesso a /protected sem token
+12. ❌ Acesso a /protected com token inválido
+
+## 🌐 Deploy
+
+### Preparação para Produção
+
+1. **Configure variáveis de ambiente de produção**
+2. **Use MongoDB Atlas** (gratuito):
+   - Crie uma conta em https://www.mongodb.com/cloud/atlas
+   - Crie um cluster
+   - Configure IP whitelist (0.0.0.0/0 para permitir todos)
+   - Copie a connection string para `MONGODB_URI_PRODUCTION`
+
+3. **Gere um JWT_SECRET forte**:
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+
+### Deploy na Vercel
+
+```bash
+# Instalar Vercel CLI
+npm i -g vercel
+
+# Fazer deploy
+vercel
+
+# Deploy em produção
+vercel --prod
+```
+
+**Importante**: Configure as variáveis de ambiente no painel da Vercel:
+- `NODE_ENV=production`
+- `MONGODB_URI_PRODUCTION`
+- `JWT_SECRET`
+- `JWT_EXPIRES_IN`
+- `BCRYPT_SALT_ROUNDS`
+
+### Deploy no Render
+
+1. Conecte seu repositório GitHub
+2. Configure:
+   - **Build Command**: `npm run build`
+   - **Start Command**: `npm start`
+3. Adicione as variáveis de ambiente
+
+### Deploy no Railway
+
+```bash
+# Instalar Railway CLI
+npm i -g @railway/cli
+
+# Login
+railway login
+
+# Inicializar projeto
+railway init
+
+# Deploy
+railway up
+```
+
+## 📝 Logs
+
+A aplicação possui logs em pontos estratégicos:
+
+- ✅ Registro bem-sucedido
+- ⚠️ Tentativa de registro com email duplicado
+- ❌ Erros de validação
+- ✅ Login bem-sucedido
+- ⚠️ Tentativa de login com usuário não existente
+- ⚠️ Tentativa de login com senha incorreta
+- ✅ Token verificado com sucesso
+- 🔄 Tentativas de acesso a rotas
+
+## 🔒 Segurança
+
+- ✅ Senhas hasheadas com bcrypt (12 rounds)
+- ✅ JWT com expiração configurável
+- ✅ Validação de entrada em todas as rotas
+- ✅ CORS configurado
+- ✅ Helmet para headers de segurança
+- ✅ Password não retornado nas queries
 
 ## 📄 Licença
 
-Este projeto está sob a licença ISC. Veja o arquivo `LICENSE` para mais detalhes.
+ISC
 
-## 👥 Autor
+## 👨‍💻 Autor
 
-Desenvolvido como atividade acadêmica para demonstrar conhecimentos em:
-- Arquitetura de software em camadas
-- Autenticação JWT
-- API RESTful
-- TypeScript/Node.js
-- MongoDB/Mongoose
-- Segurança em aplicações web
+Desenvolvido como projeto acadêmico.
+
+---
+
+**Precisa de ajuda?** Consulte a documentação completa em:
+- [API_DOCS.md](./API_DOCS.md) - Documentação detalhada da API
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - Guia de deploy
+- [QUICK_START.md](./QUICK_START.md) - Início rápido

@@ -8,9 +8,14 @@ interface ValidationError {
 // Email validation regex
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Password validation regex - requires at least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special char
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+
 export const validateRegister = (req: Request, res: Response, next: NextFunction): void => {
   const { name, email, password } = req.body;
   const errors: ValidationError[] = [];
+
+  console.log('🔍 Validating registration data...');
 
   // Validate name
   if (!name || typeof name !== 'string') {
@@ -31,12 +36,18 @@ export const validateRegister = (req: Request, res: Response, next: NextFunction
   // Validate password
   if (!password || typeof password !== 'string') {
     errors.push({ field: 'password', message: 'Password is required and must be a string' });
-  } else if (password.length < 6) {
-    errors.push({ field: 'password', message: 'Password must be at least 6 characters long' });
+  } else if (password.length < 8) {
+    errors.push({ field: 'password', message: 'Password must be at least 8 characters long' });
+  } else if (!passwordRegex.test(password)) {
+    errors.push({ 
+      field: 'password', 
+      message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&#)' 
+    });
   }
 
   if (errors.length > 0) {
-    res.status(400).json({
+    console.log(`❌ Validation failed: ${errors.length} error(s) found`);
+    res.status(422).json({
       success: false,
       message: 'Validation failed',
       errors: errors,
@@ -45,12 +56,15 @@ export const validateRegister = (req: Request, res: Response, next: NextFunction
     return;
   }
 
+  console.log('✅ Registration validation passed');
   next();
 };
 
 export const validateLogin = (req: Request, res: Response, next: NextFunction): void => {
   const { email, password } = req.body;
   const errors: ValidationError[] = [];
+
+  console.log('🔍 Validating login data...');
 
   // Validate email
   if (!email || typeof email !== 'string') {
@@ -65,7 +79,8 @@ export const validateLogin = (req: Request, res: Response, next: NextFunction): 
   }
 
   if (errors.length > 0) {
-    res.status(400).json({
+    console.log(`❌ Login validation failed: ${errors.length} error(s) found`);
+    res.status(422).json({
       success: false,
       message: 'Validation failed',
       errors: errors,
@@ -74,6 +89,7 @@ export const validateLogin = (req: Request, res: Response, next: NextFunction): 
     return;
   }
 
+  console.log('✅ Login validation passed');
   next();
 };
 
