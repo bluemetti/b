@@ -26,7 +26,7 @@
 
 ## 🚀 Ambiente Produção (Vercel)
 
-**URL:** https://backend.daviblumetti.tech
+**URL:** https://www.youtube.com/watch?v=w_agd0_ZKUo
 
 **MongoDB:** MongoDB Atlas (cloud)
 
