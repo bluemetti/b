@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import connectDB from './database/connection';
 import authRoutes from './routes/authRoutes';
+import workoutRoutes from './routes/workoutRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -58,7 +59,16 @@ class App {
             health: '/health',
             register: 'POST /register',
             login: 'POST /login',
-            protected: 'GET /protected (requires token)'
+            protected: 'GET /protected (requires token)',
+            workouts: {
+              create: 'POST /workouts (requires token)',
+              list: 'GET /workouts (requires token)',
+              get: 'GET /workouts/:id (requires token)',
+              update: 'PUT /workouts/:id (requires token)',
+              patch: 'PATCH /workouts/:id (requires token)',
+              delete: 'DELETE /workouts/:id (requires token)',
+              stats: 'GET /workouts/stats (requires token)'
+            }
           },
           documentation: 'https://github.com/bluemetti/b'
         });
@@ -112,6 +122,7 @@ class App {
 
     // API routes
     this.app.use('/', authRoutes);
+    this.app.use('/workouts', workoutRoutes);
 
     // 404 handler
     this.app.use((req: Request, res: Response) => {

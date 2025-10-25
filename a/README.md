@@ -3,9 +3,9 @@ Vídeo: https://backend.daviblumetti.tech/
 
 
 
-# 🔐 JWT Authentication Backend
+# 🔐 JWT Authentication Backend + 💪 Workout Tracker
 
-Backend completo de autenticação com Node.js, TypeScript, Express, MongoDB e JWT.
+Backend completo de autenticação com Node.js, TypeScript, Express, MongoDB e JWT, **agora com sistema de registro de treinos (Workout Tracker)**.
 
 ## 📋 Índice
 
@@ -26,8 +26,22 @@ Backend completo de autenticação com Node.js, TypeScript, Express, MongoDB e J
 - ✅ **POST /register** - Registro de novos usuários
 - ✅ **POST /login** - Autenticação e geração de token JWT
 
-### Rotas Protegidas
+### Rotas Protegidas (Autenticação)
 - 🔒 **GET /protected** - Rota de exemplo protegida por JWT
+
+### 💪 **NOVO: Rotas de Registro de Treinos (CRUD Completo)**
+Todas as rotas de treinos são **protegidas por JWT** e respeitam o isolamento de dados por usuário:
+
+- 🏋️ **POST /workouts** - Criar um novo treino
+- 📋 **GET /workouts** - Listar todos os treinos do usuário autenticado
+- 🔍 **GET /workouts?type=strength** - Listar treinos com filtros (type, dateFrom, dateTo, minDuration, maxDuration, minCalories, maxCalories)
+- 🎯 **GET /workouts/:id** - Buscar treino específico por ID
+- ✏️ **PUT /workouts/:id** - Atualização completa de um treino
+- 🔧 **PATCH /workouts/:id** - Atualização parcial de um treino
+- 🗑️ **DELETE /workouts/:id** - Deletar um treino
+- 📊 **GET /workouts/stats** - Estatísticas de treinos do usuário
+
+**Segurança:** Usuários só podem acessar, editar e deletar **seus próprios treinos**. Tentativas de acesso a dados de outros usuários retornam **403 Forbidden**.
 
 ### Outras Rotas
 - 🏥 **GET /health** - Health check com status do MongoDB
@@ -49,22 +63,26 @@ Backend completo de autenticação com Node.js, TypeScript, Express, MongoDB e J
 a/
 ├── src/
 │   ├── controllers/      # Controladores (lógica de requisição/resposta)
-│   │   └── AuthController.ts
+│   │   ├── AuthController.ts
+│   │   └── WorkoutController.ts    # NOVO: Controller de treinos
 │   ├── services/         # Serviços (lógica de negócio)
-│   │   └── AuthService.ts
+│   │   ├── AuthService.ts
+│   │   └── WorkoutService.ts       # NOVO: Service de treinos
 │   ├── models/           # Modelos do MongoDB
-│   │   └── User.ts
+│   │   ├── User.ts
+│   │   └── Workout.ts              # NOVO: Model de treinos
 │   ├── middlewares/      # Middlewares (autenticação, validação)
 │   │   ├── authMiddleware.ts
 │   │   └── validationMiddleware.ts
 │   ├── routes/           # Definição de rotas
-│   │   └── authRoutes.ts
+│   │   ├── authRoutes.ts
+│   │   └── workoutRoutes.ts        # NOVO: Rotas de treinos
 │   ├── database/         # Configuração do banco de dados
 │   │   └── connection.ts
 │   ├── app.ts           # Configuração do Express
 │   └── index.ts         # Entry point da aplicação
 ├── requests/            # Requisições de teste (Insomnia/Postman)
-│   ├── requests.yaml    # Coleção completa
+│   ├── requests.yaml    # Coleção completa (Auth + Workouts)
 │   └── *.sh            # Scripts individuais
 ├── Dockerfile           # Dockerfile para produção
 ├── docker-compose.yml   # Orquestração de containers
@@ -117,9 +135,9 @@ npm run docker:up
 ```
 
 Isso iniciará:
-- **App Node.js** → http://localhost:3001
+- **App Node.js** → https://expert-carnival-q7qx97v5grqqh96j6-3001.app.github.dev
 - **MongoDB** → mongodb://localhost:27017
-- **Mongo Express** (UI Web) → http://localhost:8081
+- **Mongo Express** (UI Web) → https://expert-carnival-q7qx97v5grqqh96j6-8081.app.github.dev
   - Usuário: `admin`
   - Senha: `admin123`
 
@@ -316,6 +334,222 @@ Authorization: Bearer <seu-token-jwt>
 - `401` - Token não fornecido
 - `401` - Token inválido ou expirado
 
+---
+
+## 💪 Endpoints de Registro de Treinos (NOVO)
+
+Todas as rotas de treinos requerem autenticação via JWT no header `Authorization: Bearer <token>`.
+
+### Criar Treino
+
+```http
+POST /workouts
+Authorization: Bearer <seu-token-jwt>
+Content-Type: application/json
+
+{
+  "name": "Treino de Pernas",
+  "type": "strength",
+  "duration": 60,
+  "calories": 400,
+  "exercises": [
+    {
+      "name": "Agachamento",
+      "sets": 4,
+      "reps": 12,
+      "weight": 80
+    },
+    {
+      "name": "Leg Press",
+      "sets": 3,
+      "reps": 15,
+      "weight": 150
+    }
+  ],
+  "date": "2025-10-24T10:00:00Z",
+  "notes": "Treino intenso de pernas"
+}
+```
+
+**Tipos de treino disponíveis:** `cardio`, `strength`, `flexibility`, `sports`, `other`
+
+**Validações:**
+- `name`: 3-100 caracteres
+- `type`: um dos tipos válidos
+- `duration`: 1-1440 minutos
+- `exercises`: array com no mínimo 1 exercício
+- Cada exercício deve ter `name` (2+ caracteres)
+- Campos opcionais: `sets`, `reps`, `weight`, `distance`, `time`
+
+**Resposta de Sucesso (201)**
+```json
+{
+  "message": "Workout created successfully",
+  "workout": {
+    "id": "68fb...",
+    "name": "Treino de Pernas",
+    "type": "strength",
+    "duration": 60,
+    "calories": 400,
+    "exercises": [...],
+    "date": "2025-10-24T10:00:00.000Z",
+    "notes": "Treino intenso de pernas",
+    "createdAt": "2025-10-24T10:00:00.000Z"
+  }
+}
+```
+
+### Listar Treinos
+
+```http
+GET /workouts
+Authorization: Bearer <seu-token-jwt>
+```
+
+**Filtros disponíveis (query params):**
+- `type` - Filtrar por tipo de treino
+- `dateFrom` - Data inicial (ISO 8601)
+- `dateTo` - Data final (ISO 8601)
+- `minDuration` - Duração mínima em minutos
+- `maxDuration` - Duração máxima em minutos
+- `minCalories` - Calorias mínimas
+- `maxCalories` - Calorias máximas
+
+**Exemplos:**
+```http
+GET /workouts?type=strength
+GET /workouts?minDuration=30&maxDuration=90
+GET /workouts?dateFrom=2025-10-01&dateTo=2025-10-31
+```
+
+**Resposta de Sucesso (200)**
+```json
+{
+  "message": "Workouts retrieved successfully",
+  "count": 2,
+  "workouts": [...]
+}
+```
+
+### Buscar Treino por ID
+
+```http
+GET /workouts/:id
+Authorization: Bearer <seu-token-jwt>
+```
+
+**Resposta de Sucesso (200)**
+```json
+{
+  "message": "Workout retrieved successfully",
+  "workout": {...}
+}
+```
+
+**Erros:**
+- `404` - Treino não encontrado ou não pertence ao usuário
+- `403` - Tentativa de acessar treino de outro usuário
+
+### Atualizar Treino (PUT - completo)
+
+```http
+PUT /workouts/:id
+Authorization: Bearer <seu-token-jwt>
+Content-Type: application/json
+
+{
+  "name": "Treino de Pernas Atualizado",
+  "type": "strength",
+  "duration": 75,
+  "calories": 500,
+  "exercises": [...],
+  "notes": "Treino intenso - atualizado"
+}
+```
+
+**Nota:** PUT requer **todos os campos obrigatórios** (name, type, duration, exercises).
+
+**Resposta de Sucesso (200)**
+```json
+{
+  "message": "Workout updated successfully",
+  "workout": {...}
+}
+```
+
+### Atualizar Treino (PATCH - parcial)
+
+```http
+PATCH /workouts/:id
+Authorization: Bearer <seu-token-jwt>
+Content-Type: application/json
+
+{
+  "duration": 45,
+  "calories": 300,
+  "notes": "Treino reduzido"
+}
+```
+
+**Nota:** PATCH permite atualizar **apenas os campos desejados**.
+
+**Resposta de Sucesso (200)**
+```json
+{
+  "message": "Workout updated successfully",
+  "workout": {...}
+}
+```
+
+### Deletar Treino
+
+```http
+DELETE /workouts/:id
+Authorization: Bearer <seu-token-jwt>
+```
+
+**Resposta de Sucesso (200)**
+```json
+{
+  "message": "Workout deleted successfully"
+}
+```
+
+**Erros:**
+- `404` - Treino não encontrado
+- `403` - Tentativa de deletar treino de outro usuário
+
+### Estatísticas de Treinos
+
+```http
+GET /workouts/stats
+Authorization: Bearer <seu-token-jwt>
+```
+
+**Resposta de Sucesso (200)**
+```json
+{
+  "message": "Workout statistics retrieved successfully",
+  "stats": {
+    "totalWorkouts": 15,
+    "totalDuration": 900,
+    "totalCalories": 6000,
+    "avgDuration": 60,
+    "avgCalories": 400
+  }
+}
+```
+
+### 🔒 Segurança de Dados
+
+**Isolamento por usuário:**
+- Cada usuário **só pode** acessar seus próprios treinos
+- Tentativas de acessar/modificar treinos de outros usuários retornam **403 Forbidden**
+- O `userId` é extraído automaticamente do token JWT
+- Todas as queries filtram por `userId` automaticamente
+
+---
+
 ## 🔐 Variáveis de Ambiente
 
 | Variável | Descrição | Exemplo | Obrigatória |
@@ -357,6 +591,7 @@ cd requests
 
 ### Cenários de Teste Incluídos
 
+**Autenticação:**
 1. ✅ Cadastro bem-sucedido
 2. ❌ Cadastro com email repetido
 3. ❌ Cadastro com senha inválida
@@ -369,6 +604,28 @@ cd requests
 10. ✅ Acesso a /protected com token válido
 11. ❌ Acesso a /protected sem token
 12. ❌ Acesso a /protected com token inválido
+
+**Registro de Treinos:**
+13. ✅ Criar treino bem-sucedido
+14. ✅ Criar treino de cardio
+15. ✅ Listar todos os treinos
+16. ✅ Listar treinos filtrado por tipo
+17. ✅ Listar treinos filtrado por duração
+18. ✅ Buscar treino por ID
+19. ✅ Atualização completa (PUT)
+20. ✅ Atualização parcial (PATCH)
+21. ✅ Deletar treino
+22. ✅ Estatísticas de treinos
+23. ❌ Criar treino sem token
+24. ❌ Criar treino com token inválido
+25. ❌ Criar treino com tipo inválido
+26. ❌ Criar treino sem exercícios
+27. ❌ Criar treino com nome muito curto
+28. ❌ Criar treino com JSON malformado
+29. ❌ Buscar treino com ID inválido
+30. ❌ Buscar treino de outro usuário (403)
+31. ❌ Atualizar treino de outro usuário (403)
+32. ❌ Deletar treino de outro usuário (403)
 
 ## 🌐 Deploy
 
@@ -434,6 +691,7 @@ railway up
 
 A aplicação possui logs em pontos estratégicos:
 
+**Autenticação:**
 - ✅ Registro bem-sucedido
 - ⚠️ Tentativa de registro com email duplicado
 - ❌ Erros de validação
@@ -443,6 +701,20 @@ A aplicação possui logs em pontos estratégicos:
 - ✅ Token verificado com sucesso
 - 🔄 Tentativas de acesso a rotas
 
+**Registro de Treinos:**
+- 🔄 Criação de treino
+- ✅ Treino criado com sucesso
+- 🔄 Busca de treinos
+- ✅ Treinos encontrados
+- ⚠️ Treino não encontrado
+- ⚠️ Acesso negado a treino de outro usuário
+- 🔄 Atualização de treino
+- ✅ Treino atualizado com sucesso
+- 🔄 Deleção de treino
+- ✅ Treino deletado com sucesso
+- 🔄 Busca de estatísticas
+- ❌ Erros de validação
+
 ## 🔒 Segurança
 
 - ✅ Senhas hasheadas com bcrypt (12 rounds)
@@ -451,6 +723,9 @@ A aplicação possui logs em pontos estratégicos:
 - ✅ CORS configurado
 - ✅ Helmet para headers de segurança
 - ✅ Password não retornado nas queries
+- ✅ **Isolamento de dados por usuário (workouts)**
+- ✅ **Proteção contra acesso cruzado de dados**
+- ✅ **Validações robustas em todos os campos**
 
 ## 📄 Licença
 

@@ -1,7 +1,7 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2025-10-19T05:15:00.000Z",
+  "__export_date": "2025-10-24T15:30:00.000Z",
   "__export_source": "insomnia.desktop.app:v2023.5.8",
   "resources": [
     {
@@ -16,19 +16,17 @@
       "_type": "environment",
       "name": "Base Environment",
       "data": {
-        "base_url_local": "https://organic-space-meme-7v9xrv7jjvp9cxpj9-3001.app.github.dev",
-        "base_url_atlas": "https://organic-space-meme-7v9xrv7jjvp9cxpj9-3002.app.github.dev",
-        "base_url_production": "https://backend.daviblumetti.tech",
-        "mongo_express_url": "https://organic-space-meme-7v9xrv7jjvp9cxpj9-8081.app.github.dev"
+        "base_url_local": "http://localhost:3001",
+        "base_url_atlas": "http://localhost:3002"
       },
       "parentId": "wrk_jwt_auth"
     },
     {
       "_id": "env_local",
       "_type": "environment",
-      "name": "LOCAL (MongoDB Docker)",
+      "name": "LOCAL - Codespace (porta 3001)",
       "data": {
-        "base_url": "{{ _.base_url_local }}",
+        "base_url": "https://expert-carnival-q7qx97v5grqqh96j6-3001.app.github.dev",
         "token": ""
       },
       "parentId": "env_base"
@@ -36,19 +34,9 @@
     {
       "_id": "env_atlas",
       "_type": "environment",
-      "name": "ATLAS (MongoDB Cloud)",
+      "name": "PRODUCTION - Atlas (porta 3002)",
       "data": {
-        "base_url": "{{ _.base_url_atlas }}",
-        "token": ""
-      },
-      "parentId": "env_base"
-    },
-    {
-      "_id": "env_production",
-      "_type": "environment",
-      "name": "PRODUCTION (Vercel)",
-      "data": {
-        "base_url": "{{ _.base_url_production }}",
+        "base_url": "https://expert-carnival-q7qx97v5grqqh96j6-3002.app.github.dev",
         "token": ""
       },
       "parentId": "env_base"
@@ -322,9 +310,314 @@
       "description": "❌ Token inválido (401)"
     },
     {
+      "_id": "fld_workouts",
+      "_type": "request_group",
+      "name": "06 - Workouts (Registro de Treinos)",
+      "parentId": "wrk_jwt_auth"
+    },
+    {
+      "_id": "req_workout_create",
+      "_type": "request",
+      "name": "01 - Criar Treino (Strength)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/workouts",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Treino de Pernas\",\n  \"type\": \"strength\",\n  \"duration\": 60,\n  \"calories\": 400,\n  \"exercises\": [\n    {\n      \"name\": \"Agachamento\",\n      \"sets\": 4,\n      \"reps\": 12,\n      \"weight\": 80\n    },\n    {\n      \"name\": \"Leg Press\",\n      \"sets\": 3,\n      \"reps\": 15,\n      \"weight\": 150\n    }\n  ],\n  \"notes\": \"Treino intenso de pernas\"\n}"
+      },
+      "parentId": "fld_workouts",
+      "description": "✅ Criar treino de musculação"
+    },
+    {
+      "_id": "req_workout_create_cardio",
+      "_type": "request",
+      "name": "02 - Criar Treino (Cardio)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/workouts",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Corrida Matinal\",\n  \"type\": \"cardio\",\n  \"duration\": 30,\n  \"calories\": 250,\n  \"exercises\": [\n    {\n      \"name\": \"Corrida\",\n      \"distance\": 5,\n      \"time\": 28\n    }\n  ],\n  \"notes\": \"Corrida leve\"\n}"
+      },
+      "parentId": "fld_workouts",
+      "description": "✅ Criar treino de cardio"
+    },
+    {
+      "_id": "req_workout_list_all",
+      "_type": "request",
+      "name": "03 - Listar Todos os Treinos",
+      "method": "GET",
+      "url": "{{ _.base_url }}/workouts",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "parentId": "fld_workouts",
+      "description": "✅ Listar todos os treinos do usuário"
+    },
+    {
+      "_id": "req_workout_list_filtered",
+      "_type": "request",
+      "name": "04 - Listar Filtrado por Tipo",
+      "method": "GET",
+      "url": "{{ _.base_url }}/workouts?type=strength",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "parentId": "fld_workouts",
+      "description": "✅ Listar apenas treinos de musculação"
+    },
+    {
+      "_id": "req_workout_list_duration",
+      "_type": "request",
+      "name": "05 - Listar Filtrado por Duração",
+      "method": "GET",
+      "url": "{{ _.base_url }}/workouts?minDuration=30&maxDuration=90",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "parentId": "fld_workouts",
+      "description": "✅ Treinos entre 30 e 90 minutos"
+    },
+    {
+      "_id": "req_workout_get_id",
+      "_type": "request",
+      "name": "06 - Buscar Treino por ID",
+      "method": "GET",
+      "url": "{{ _.base_url }}/workouts/YOUR_WORKOUT_ID_HERE",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "parentId": "fld_workouts",
+      "description": "✅ Substitua YOUR_WORKOUT_ID_HERE por um ID real"
+    },
+    {
+      "_id": "req_workout_update_put",
+      "_type": "request",
+      "name": "07 - Atualizar Completo (PUT)",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/workouts/YOUR_WORKOUT_ID_HERE",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Treino de Pernas ATUALIZADO\",\n  \"type\": \"strength\",\n  \"duration\": 75,\n  \"calories\": 500,\n  \"exercises\": [\n    {\n      \"name\": \"Agachamento\",\n      \"sets\": 5,\n      \"reps\": 10,\n      \"weight\": 90\n    }\n  ],\n  \"notes\": \"Treino atualizado\"\n}"
+      },
+      "parentId": "fld_workouts",
+      "description": "✅ Atualização completa - todos os campos obrigatórios"
+    },
+    {
+      "_id": "req_workout_update_patch",
+      "_type": "request",
+      "name": "08 - Atualizar Parcial (PATCH)",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/workouts/YOUR_WORKOUT_ID_HERE",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"duration\": 45,\n  \"calories\": 300,\n  \"notes\": \"Treino reduzido\"\n}"
+      },
+      "parentId": "fld_workouts",
+      "description": "✅ Atualização parcial - apenas campos específicos"
+    },
+    {
+      "_id": "req_workout_delete",
+      "_type": "request",
+      "name": "09 - Deletar Treino",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/workouts/YOUR_WORKOUT_ID_HERE",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "parentId": "fld_workouts",
+      "description": "✅ Deletar um treino"
+    },
+    {
+      "_id": "req_workout_stats",
+      "_type": "request",
+      "name": "10 - Estatísticas de Treinos",
+      "method": "GET",
+      "url": "{{ _.base_url }}/workouts/stats",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "parentId": "fld_workouts",
+      "description": "✅ Estatísticas gerais dos treinos"
+    },
+    {
+      "_id": "req_workout_no_token",
+      "_type": "request",
+      "name": "11 - [ERRO] Criar sem Token",
+      "method": "POST",
+      "url": "{{ _.base_url }}/workouts",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Treino Sem Token\",\n  \"type\": \"strength\",\n  \"duration\": 60,\n  \"exercises\": [{\"name\": \"Agachamento\"}]\n}"
+      },
+      "parentId": "fld_workouts",
+      "description": "❌ Erro 401 - sem token"
+    },
+    {
+      "_id": "req_workout_invalid_token",
+      "_type": "request",
+      "name": "12 - [ERRO] Token Inválido",
+      "method": "POST",
+      "url": "{{ _.base_url }}/workouts",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer token_invalido_xyz123"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Treino Token Inválido\",\n  \"type\": \"strength\",\n  \"duration\": 60,\n  \"exercises\": [{\"name\": \"Agachamento\"}]\n}"
+      },
+      "parentId": "fld_workouts",
+      "description": "❌ Erro 401 - token inválido"
+    },
+    {
+      "_id": "req_workout_invalid_type",
+      "_type": "request",
+      "name": "13 - [ERRO] Tipo Inválido",
+      "method": "POST",
+      "url": "{{ _.base_url }}/workouts",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Treino Tipo Inválido\",\n  \"type\": \"natacao\",\n  \"duration\": 60,\n  \"exercises\": [{\"name\": \"Nado\"}]\n}"
+      },
+      "parentId": "fld_workouts",
+      "description": "❌ Erro 422 - tipo deve ser: cardio, strength, flexibility, sports, other"
+    },
+    {
+      "_id": "req_workout_no_exercises",
+      "_type": "request",
+      "name": "14 - [ERRO] Sem Exercícios",
+      "method": "POST",
+      "url": "{{ _.base_url }}/workouts",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Treino Sem Exercícios\",\n  \"type\": \"strength\",\n  \"duration\": 60,\n  \"exercises\": []\n}"
+      },
+      "parentId": "fld_workouts",
+      "description": "❌ Erro 422 - pelo menos 1 exercício obrigatório"
+    },
+    {
+      "_id": "req_workout_short_name",
+      "_type": "request",
+      "name": "15 - [ERRO] Nome Muito Curto",
+      "method": "POST",
+      "url": "{{ _.base_url }}/workouts",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Ab\",\n  \"type\": \"strength\",\n  \"duration\": 60,\n  \"exercises\": [{\"name\": \"Abdominal\"}]\n}"
+      },
+      "parentId": "fld_workouts",
+      "description": "❌ Erro 422 - nome deve ter mínimo 3 caracteres"
+    },
+    {
       "_id": "fld_mongo_express",
       "_type": "request_group",
-      "name": "05 - Mongo Express (Interface Web)",
+      "name": "07 - Mongo Express (Banco de Dados)",
       "parentId": "wrk_jwt_auth"
     },
     {
@@ -332,33 +625,11 @@
       "_type": "request",
       "name": "Mongo Express - Home",
       "method": "GET",
-      "url": "{{ _.mongo_express_url }}",
+      "url": "http://localhost:8081",
       "headers": [],
       "body": {},
       "parentId": "fld_mongo_express",
       "description": "Interface web do MongoDB Local - Login: admin / admin123"
-    },
-    {
-      "_id": "req_mongo_express_db",
-      "_type": "request",
-      "name": "Mongo Express - Database",
-      "method": "GET",
-      "url": "{{ _.mongo_express_url }}/db/jwt-auth-db",
-      "headers": [],
-      "body": {},
-      "parentId": "fld_mongo_express",
-      "description": "Visualizar banco de dados jwt-auth-db"
-    },
-    {
-      "_id": "req_mongo_express_users",
-      "_type": "request",
-      "name": "Mongo Express - Users Collection",
-      "method": "GET",
-      "url": "{{ _.mongo_express_url }}/db/jwt-auth-db/users",
-      "headers": [],
-      "body": {},
-      "parentId": "fld_mongo_express",
-      "description": "Visualizar coleção de usuários no MongoDB Local"
     }
   ]
 }

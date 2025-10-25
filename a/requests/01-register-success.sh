@@ -2,12 +2,12 @@
 
 # Registro bem-sucedido
 echo "=== REGISTRO BEM-SUCEDIDO ==="
-curl -X POST http://localhost:3001/register \
+curl -X POST https://expert-carnival-q7qx97v5grqqh96j6-3001.app.github.dev/register \
   -H "Content-Type: application/json" \
   -d '{
     "name": "João Silva",
     "email": "joao.silva@email.com",
-    "password": "senha123"
+    "password": "Senha@123"
   }' \
   -w "\n\nStatus Code: %{http_code}\n" \
   -s | jq .
